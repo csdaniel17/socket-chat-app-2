@@ -7,11 +7,11 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function(socket) {
+io.on('connection', function(socket, msg) {
   // console.log('a user connected');
-  // socket.on('disconnect', function() {
-  //   console.log('user disconnected');
-  // });
+  //show when a user enters
+  io.emit('enter message', msg);
+
   //to send a message to everyone except a certain socket
   // socket.broadcast.emit('hi');
 
@@ -19,6 +19,12 @@ io.on('connection', function(socket) {
   socket.on('chat message', function(msg) {
     // console.log('message: ' + msg);
     io.emit('chat message', msg);
+  });
+
+  //show when a user leaves
+  socket.on('disconnect', function(msg) {
+    // console.log('user disconnected');
+    io.emit('exit message', msg);
   });
 });
 

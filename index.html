@@ -63,14 +63,24 @@
     // establish a connection with the server
     var socket = io();
 
+    //submits message to form
     $('form').submit(function() {
       socket.emit('chat message', $('#m').val());
       $('#m').val('');
       return false;
     });
 
+    //show when a user enters
+    socket.on('enter message', function(msg) {
+      $('#messages').append($('<li>').text('a user entered the room'));
+    });
+    //show chat messages
     socket.on('chat message', function(msg) {
       $('#messages').append($('<li>').text(msg));
+    });
+    //show when a user leaves
+    socket.on('exit message', function(msg) {
+      $('#messages').append($('<li>').text('a user left the room'));
     });
 
 
