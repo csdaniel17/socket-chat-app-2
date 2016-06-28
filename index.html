@@ -53,12 +53,14 @@
     <input id="m" autocomplete="off"><button>Send</button>
   </form>
 
-
+  <!-- load socket.io client library -->
   <script src="/socket.io/socket.io.js"></script>
+  <!-- load jQuery -->
   <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 
   <script>
 
+    // establish a connection with the server
     var socket = io();
 
     $('form').submit(function() {
