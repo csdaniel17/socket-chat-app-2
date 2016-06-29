@@ -1,31 +1,47 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http); //web socket has to work with http
+// var usernames = [];
 
 app.get('/', function(req, res) {
-  // res.send('<h1>Hello World</h1>');
   res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function(socket, msg) {
-  // console.log('a user connected');
-  //show when a user enters
-  io.emit('enter message', msg);
+io.on('connection', function(socket) {
 
-  //to send a message to everyone except a certain socket
-  // socket.broadcast.emit('hi');
+  socket.on('new user', function(username) {
+    socket.username = username;
+    io.emit('join', username);
+  });
 
-  //listen for chat messages
+  socket.on('disconnect', function() {
+    io.emit('leave', socket.username);
+  });
+
   socket.on('chat message', function(msg) {
     // console.log('message: ' + msg);
     io.emit('chat message', msg);
   });
 
-  //show when a user leaves
-  socket.on('disconnect', function(msg) {
-    // console.log('user disconnected');
-    io.emit('exit message', msg);
-  });
+  // socket.on('new user', function(data, callback) {
+  //   //check if username is valid
+  //   //is the username already in array?
+  //   if (usernames.indexOf(data) != -1) {
+  //     callback(false);
+  //   } else {
+  //     //set callback to true
+  //     callback(true);
+  //     //add it to array
+  //     //first store username of each user in the socket itself
+  //     socket.username = data;
+  //     console.log(socket.username);
+  //     usernames.push(socket.username);
+  //     console.log(usernames);
+  //     io.emit('usernames', usernames);
+  //   }
+  //   io.emit('enter message', msg);
+  // });
+
 });
 
 http.listen(3000, function () {

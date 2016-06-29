@@ -8,25 +8,26 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  body {
     font-size: 13px;
     font-family: Helvetica;
   }
-  form {
+  /*#contentWrap {
+    display: none;
+  }*/
+  #chatForm {
     background: #000;
     padding: 3px;
     position: fixed;
     bottom: 0;
     width: 100%;
   }
-  form input {
+  #chatForm input {
     border: 0;
     padding: 10px;
     width: 90%;
     margin-right: .5%;
   }
-  form button {
+  #chatForm button {
     width: 9%;
     background: rgb(130, 224, 255);
     border: none;
@@ -43,15 +44,38 @@
   #messages li:nth-child(odd) {
     background: #eee;
   }
+  .handle {
+    color: blue;
+    font-weight: bold;
+  }
+
   </style>
 </head>
 <body>
 
-  <ul id="messages"></ul>
+  <!-- <div id="nicknameWrap">
+    <p>Enter a username</p>
+    <p id="nicknameError"></p>
+    <form id="setNickname">
+      <input size="35" id="nickname"><button>Send</button>
+    </form>
+  </div> -->
 
-  <form action="">
-    <input id="m" autocomplete="off"><button>Send</button>
-  </form>
+
+  <div id="contentWrap">
+    <div id="chatWrap">
+
+      <ul id="messages"></ul>
+
+      <form id="chatForm" action="">
+        <input id="m" autocomplete="off"><button>Send</button>
+      </form>
+
+    </div>
+    <div id="users"></div>
+  </div>
+
+
 
   <!-- load socket.io client library -->
   <script src="/socket.io/socket.io.js"></script>
@@ -62,27 +86,45 @@
 
     // establish a connection with the server
     var socket = io();
+    var username = prompt('Username:');
 
+    socket.emit('new user', username);
     //submits message to form
-    $('form').submit(function() {
-      socket.emit('chat message', $('#m').val());
+    $('#chatForm').submit(function(e) {
+      e.preventDefault();
+      var message = $('#m').val();
+      var html = '<span class="handle">' + username + ':</span> ' + message;
+      $('#messages').append($('<li>').html(html));
+      socket.emit('chat message', {
+        username: username,
+        message: message
+      });
       $('#m').val('');
       return false;
     });
 
-    //show when a user enters
-    socket.on('enter message', function(msg) {
-      $('#messages').append($('<li>').text('a user entered the room'));
-    });
-    //show chat messages
-    socket.on('chat message', function(msg) {
-      $('#messages').append($('<li>').text(msg));
-    });
-    //show when a user leaves
-    socket.on('exit message', function(msg) {
-      $('#messages').append($('<li>').text('a user left the room'));
+    socket.on('join', function(username) {
+      $('#messages').append($('<li>').text(username + ' has entered the room'));
     });
 
+    socket.on('leave', function(username) {
+      $('#messages').append($('<li>').text(username + ' has left the room'));
+    });
+
+    // $('#setNickname').submit(function(e) {
+    //   e.preventDefault();
+    //   socket.emit('new user', $('#nickname').val(), function(data) {
+    //     console.log('data is: ', data);
+    //     if (data) {
+    //       //hide nickname form
+    //       $('#nicknameWrap').hide();
+    //       $('#contentWrap').show();
+    //     } else {
+    //       $('#nicknameError').html('username is already taken! try again.');
+    //     }
+    //   });
+    //   $('#nickname').val('');
+    // });
 
   </script>
 
